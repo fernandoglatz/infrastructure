@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "name": "guest",
+      "password_hash": "J1fHmTUzHsw1haogO4FntwspdWfSLZNFz4VUb4AhoWeRlLBS",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": ["administrator"],
+      "limits": {}
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "guest",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ]
+}
