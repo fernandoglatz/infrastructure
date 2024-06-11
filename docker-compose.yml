@@ -2,8 +2,6 @@ services:
   mongo:
     image: mongo:7
     hostname: mongo
-    networks:
-      internal:
     ports:
       - "27017:27017"
     restart: unless-stopped
@@ -21,8 +19,6 @@ services:
   redis:
     image: redis:7
     hostname: redis
-    networks:
-      internal:
     ports:
       - "6379:6379"
     restart: unless-stopped
@@ -41,12 +37,10 @@ services:
     build: ./rabbitmq
     hostname: rabbitmq
     networks:
-      internal:
-      external:
+      traefik:
     ports:
       - "1883:1883"
       - "5672:5672"
-      - "15672:15672"
     environment:
       - TZ=${TZ}
     volumes:
@@ -70,7 +64,6 @@ volumes:
   redis-data:
 
 networks:
-  external:
+  traefik:
     name: traefik
     external: true
-  internal:
