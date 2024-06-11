@@ -1,7 +1,9 @@
 services:
   mongo:
     image: mongo:7
-    hostname: home-management-mongo
+    hostname: mongo
+    networks:
+      internal:
     ports:
       - "27017:27017"
     restart: unless-stopped
@@ -9,6 +11,8 @@ services:
       - TZ=${TZ}
     volumes:
       - mongodb-data:/data/db
+    labels:
+      - "traefik.enable=false"
     logging:
       driver: "json-file"
       options:
@@ -17,13 +21,17 @@ services:
   redis:
     image: redis:7
     hostname: redis
+    networks:
+      internal:
     ports:
       - "6379:6379"
-    volumes:
-      - redis-data:/data
     restart: unless-stopped
     environment:
       - TZ=${TZ}
+    volumes:
+      - redis-data:/data
+    labels:
+      - "traefik.enable=false"
     logging:
       driver: "json-file"
       options:
@@ -32,17 +40,25 @@ services:
   rabbitmq:
     build: ./rabbitmq
     hostname: rabbitmq
+    networks:
+      internal:
+      external:
     ports:
       - "1883:1883"
       - "5672:5672"
       - "15672:15672"
-    command: '/bin/bash -c "rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-plugins enable rabbitmq_delayed_message_exchange; rabbitmq-server"'
     environment:
       - TZ=${TZ}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    labels:
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.fernandoglatz.com`)"
+      - "traefik.http.routers.rabbitmq.service=rabbitmq"
+      - "traefik.http.routers.rabbitmq.middlewares=oauth"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+      - "traefik.docker.network=traefik"
     logging:
       driver: "json-file"
       options:
@@ -52,3 +68,9 @@ volumes:
   mongodb-data:
   rabbitmq-data:
   redis-data:
+
+networks:
+  external:
+    name: traefik
+    external: true
+  internal:
