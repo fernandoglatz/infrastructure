@@ -41,6 +41,7 @@ services:
     ports:
       - "1883:1883"
       - "5672:5672"
+    restart: unless-stopped
     environment:
       - TZ=${TZ}
     volumes:
