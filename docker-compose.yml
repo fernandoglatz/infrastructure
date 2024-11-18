@@ -16,6 +16,24 @@ services:
       options:
         max-size: "50m"
 
+  postgres:
+    image: postgres:16-alpine
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    labels:
+      - "traefik.enable=false"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
   redis:
     image: redis:7
     hostname: redis
@@ -33,13 +51,27 @@ services:
       options:
         max-size: "50m"
 
+  mosquitto:
+    image: eclipse-mosquitto:2
+    hostname: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
   rabbitmq:
     build: ./rabbitmq
     hostname: rabbitmq
     networks:
       traefik:
     ports:
-      - "1883:1883"
+      - "1884:1884"
       - "5672:5672"
     restart: unless-stopped
     environment:
@@ -61,6 +93,9 @@ services:
 
 volumes:
   mongodb-data:
+  mosquitto-data:
+  mosquitto-log:
+  postgres-data:
   rabbitmq-data:
   redis-data:
 
